@@ -49,6 +49,7 @@ Thumbs.db
 # Project Specific
 # Debug HTML files
 debug_*.html
+debug_*.htm
 page_analysis.html
 
 # CSV output files (keep sample but ignore timestamped ones)
