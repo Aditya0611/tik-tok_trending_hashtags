@@ -1,0 +1,4 @@
+﻿hashtag,views,link,selector_used,source_url,scraped_at
+#[devicetype]/[locale],1,https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/[deviceType]/[locale],[class*='list'] > div,https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en?countryCode=US,2025-09-11T22:47:04.212492
+#mobile/en,N/A,https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/mobile/en,[class*='list'] > div,https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en,2025-09-11T22:49:30.937957
+#pc/en,N/A,https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en,[class*='list'] > div,https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en?countryCode=US,2025-09-11T22:47:04.211996
