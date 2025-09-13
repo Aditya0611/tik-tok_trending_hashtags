@@ -1,0 +1,80 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project Specific
+# Debug HTML files
+debug_*.html
+page_analysis.html
+
+# CSV output files (keep sample but ignore timestamped ones)
+tiktok_hashtags_*.csv
+enhanced_tiktok_hashtags_*.csv
+!sample_output.csv
+
+# Screenshots
+debug_screenshot.png
+*.png
+*.jpg
+*.jpeg
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Environment variables
+.env
+.env.local
+
+# Supabase credentials (if stored in separate file)
+supabase_config.py
+
+# Chrome driver downloads
+chromedriver*
