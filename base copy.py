@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-TikTok Hashtag Scraper V7 - Automation Ready
-Runs every 3 hours via GitHub Actions
+TikTok Hashtag Scraper V7 - Complete Fixed Version
 """
 
 import asyncio
@@ -19,15 +18,14 @@ from supabase import create_client, Client
 import uuid
 from typing import List, Dict, Optional, Any
 import logging
-import sys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Supabase Configuration - Use environment variables for security
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://rnrnbbxnmtajjxscawrc.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucm5iYnhubXRhamp4c2Nhd3JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4MzI4OTYsImV4cCI6MjA3MjQwODg5Nn0.WMigmhXcYKYzZxjQFmn6p_Y9y8oNVjuo5YJ0-xzY4h4")
+# Supabase Configuration
+SUPABASE_URL = "https://rnrnbbxnmtajjxscawrc.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucm5iYnhubXRhamp4c2Nhd3JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4MzI4OTYsImV4cCI6MjA3MjQwODg5Nn0.WMigmhXcYKYzZxjQFmn6p_Y9y8oNVjuo5YJ0-xzY4h4"
 
 def init_supabase():
     """Initialize Supabase client"""
@@ -388,7 +386,7 @@ def analyze_sentiment(hashtag, element_text):
         print(f"⚠️ Sentiment analysis error: {e}")
         return 0.0, "Neutral"
 
-async def scrape_tiktok_hashtags_fixed(scrolls=15, delay=3, headless=True, output_file=None, debug=False, proxies=None, upload_to_db=True):
+async def scrape_tiktok_hashtags_fixed(scrolls=15, delay=3, headless=False, output_file=None, debug=True, proxies=None, upload_to_db=True):
     """Fixed TikTok hashtag scraper with improved View More button detection"""
     url = "https://ads.tiktok.com/business/creativecenter/inspiration/popular/hashtag/pc/en"
     
@@ -645,41 +643,48 @@ async def scrape_tiktok_hashtags_fixed(scrolls=15, delay=3, headless=True, outpu
             
         except Exception as e:
             print(f"❌ Error during scraping: {e}")
-            import traceback
-            traceback.print_exc()
             await browser.close()
             return []
 
-if __name__ == "__main__":
-    print("="*60)
-    print("TikTok Hashtag Scraper - Automation Mode")
-    print(f"Started at: {datetime.now()}")
-    print(f"Environment: {'PRODUCTION' if os.getenv('SUPABASE_URL') else 'DEVELOPMENT'}")
-    print("="*60)
+async def test_fixed_scraper():
+    """Test the fixed scraper"""
+    print("🧪 TESTING FIXED SCRAPER")
+    print("=" * 60)
     
-    try:
-        results = asyncio.run(scrape_tiktok_hashtags_fixed(
-            scrolls=15,
-            delay=3,
-            headless=True,      # Must be True for automation
-            debug=False,         # Reduce logs in production
-            proxies=None,
-            upload_to_db=True
-        ))
+    results = await scrape_tiktok_hashtags_fixed(
+        scrolls=2,
+        delay=2,
+        headless=False,
+        debug=True,
+        proxies=None,
+        upload_to_db=True
+    )
+    
+    print(f"\n📊 FINAL RESULTS")
+    print("=" * 60)
+    print(f"Total hashtags found: {len(results)}")
+    
+    if results:
+        print(f"\n📋 Extracted Hashtags:")
+        for i, hashtag in enumerate(results, 1):
+            print(f"   {i}. {hashtag['hashtag']} - {hashtag['posts']} Posts - {hashtag['category']}")
+            print(f"      Sentiment: {hashtag['sentiment_polarity']} ({hashtag['sentiment_label']})")
         
-        print(f"\n{'='*60}")
-        print(f"SCRAPE COMPLETED SUCCESSFULLY")
-        print(f"Total hashtags scraped: {len(results)}")
-        print(f"Completed at: {datetime.now()}")
-        print(f"{'='*60}")
+        song_titles = [r['hashtag'] for r in results if any(song in r['hashtag'].lower() for song in ['pocketful', 'feeling', 'drug'])]
         
-        sys.exit(0)  # Success
+        if song_titles:
+            print(f"\n❌ STILL GETTING SONGS: {song_titles}")
+        else:
+            print(f"\n✅ SUCCESS! No song titles found - all real hashtags!")
         
-    except Exception as e:
-        print(f"\n{'='*60}")
-        print(f"SCRAPE FAILED")
-        print(f"Error: {e}")
-        print(f"{'='*60}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)  # Failure
+        df = pd.DataFrame(results)
+        output_file = f"tiktok_hashtags_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        df.to_csv(output_file, index=False, encoding='utf-8')
+        print(f"\n💾 Results saved to: {output_file}")
+    else:
+        print(f"\n❌ No hashtags extracted")
+    
+    return results
+
+if __name__ == "__main__":
+    asyncio.run(test_fixed_scraper())
