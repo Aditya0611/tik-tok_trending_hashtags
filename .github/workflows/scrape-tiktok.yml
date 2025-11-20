@@ -62,27 +62,28 @@ jobs:
           echo "=========================================="
           echo "Testing utility functions..."
           echo "=========================================="
-          python -c "
-import sys
-sys.path.insert(0, '.')
-from base import convert_to_numeric, calculate_engagement_score, analyze_sentiment
-
-# Test convert_to_numeric
-assert convert_to_numeric('1.5K') == 1500, 'Failed: 1.5K conversion'
-assert convert_to_numeric('2.3M') == 2300000, 'Failed: 2.3M conversion'
-assert convert_to_numeric('1B') == 1000000000, 'Failed: 1B conversion'
-
-# Test engagement score
-score = calculate_engagement_score('#test', '100K', 'Music', 'test')
-assert 1.0 <= score <= 10.0, f'Failed: score {score} out of range'
-
-# Test sentiment
-polarity, label = analyze_sentiment('#test', 'test text')
-assert polarity == 0.0, 'Failed: sentiment should be neutral'
-assert label == 'Neutral', 'Failed: label should be Neutral'
-
-print('✓ All utility function smoke tests passed')
-"
+          cat > /tmp/test_utils.py << 'PYEOF'
+          import sys
+          sys.path.insert(0, '.')
+          from base import convert_to_numeric, calculate_engagement_score, analyze_sentiment
+          
+          # Test convert_to_numeric
+          assert convert_to_numeric('1.5K') == 1500, 'Failed: 1.5K conversion'
+          assert convert_to_numeric('2.3M') == 2300000, 'Failed: 2.3M conversion'
+          assert convert_to_numeric('1B') == 1000000000, 'Failed: 1B conversion'
+          
+          # Test engagement score
+          score = calculate_engagement_score('#test', '100K', 'Music', 'test')
+          assert 1.0 <= score <= 10.0, f'Failed: score {score} out of range'
+          
+          # Test sentiment
+          polarity, label = analyze_sentiment('#test', 'test text')
+          assert polarity == 0.0, 'Failed: sentiment should be neutral'
+          assert label == 'Neutral', 'Failed: label should be Neutral'
+          
+          print('✓ All utility function smoke tests passed')
+          PYEOF
+          python /tmp/test_utils.py
   
   scrape-tiktok:
     name: Scrape TikTok Hashtags
