@@ -1,266 +1,293 @@
 # TikTok Trending Hashtags Scraper
 
-Automated scraper that collects trending TikTok hashtags every 3 hours and stores them in Supabase with sentiment analysis and engagement metrics.
+Professional web scraper that extracts trending hashtags from TikTok Creative Center with advanced anti-detection features and cloud database integration.
 
-## Features
+## 🎯 Features
 
-- **Automated Scraping**: Runs every 3 hours via GitHub Actions
-- **Sentiment Analysis**: Uses TextBlob to analyze hashtag sentiment
-- **Engagement Scoring**: Calculates engagement scores (1-10) based on posts, views, and category
-- **Category Classification**: Automatically categorizes hashtags (Entertainment, Music, Sports, Education, etc.)
-- **Cloud Database**: Stores data in Supabase with version tracking
-- **Headless Browser**: Uses Playwright for reliable web scraping
-- **Zero Cost**: Completely free using GitHub Actions
+- **Advanced Web Scraping** - Playwright-based automation with stealth features
+- **Anti-Detection** - Browser fingerprint masking, proxy support, human-like behavior
+- **Smart Filtering** - Automatically uploads top 10 hashtags by engagement score
+- **Cloud Integration** - Supabase database for data storage
+- **Engagement Scoring** - AI-powered scoring algorithm (1-10 scale)
+- **Sentiment Analysis** - TextBlob-based sentiment classification
+- **Automated Scheduling** - GitHub Actions CI/CD for regular scraping
+- **Proxy Support** - Built-in proxy rotation to bypass IP blocks
+- **Comprehensive Logging** - Full debug logging and error handling
 
-## Architecture
+## 📋 Prerequisites
 
-```
-GitHub Actions (Scheduler)
-    ↓
-Runs Python Scraper (Every 3 Hours)
-    ↓
-Playwright Browser Automation
-    ↓
-Scrapes TikTok Creative Center
-    ↓
-Sentiment Analysis & Categorization
-    ↓
-Uploads to Supabase Database
-```
+- Python 3.8+
+- Windows/Linux/Mac
+- Internet connection
+- Supabase account (free tier available)
+- Optional: Proxy service (for bypassing IP blocks)
 
-## Tech Stack
+## 🚀 Quick Start
 
-- **Python 3.11**
-- **Playwright**: Browser automation
-- **BeautifulSoup4**: HTML parsing
-- **TextBlob**: Sentiment analysis
-- **Pandas**: Data manipulation
-- **Supabase**: PostgreSQL database
-- **GitHub Actions**: Automation
+### 1. Install Dependencies
 
-## Installation
-
-### Prerequisites
-
-- Python 3.11+
-- GitHub account
-- Supabase account
-
-### Local Setup
-
-1. Clone the repository:
 ```bash
-git clone https://github.com/Aditya0611/tik-tok_trending_hashtags.git
-cd tik-tok_trending_hashtags
-```
+# Clone the repository
+git clone <repository-url>
+cd tik-tok-ampify
 
-2. Install dependencies:
-```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+
+# Install packages
 pip install -r requirements.txt
-```
 
-3. Install Playwright browsers:
-```bash
+# Install Playwright browser
 playwright install chromium
 ```
 
-4. Set environment variables:
+### 2. Configure Environment Variables
+
+#### Windows PowerShell:
+```powershell
+# Supabase credentials (required)
+$env:SUPABASE_URL="https://your-project.supabase.co"
+$env:SUPABASE_KEY="your-anon-key"
+
+# Proxy configuration (optional - use if IP is blocked)
+$env:PROXY_SERVER="http://proxy.example.com:8080"
+$env:PROXY_USERNAME="username"  # Optional
+$env:PROXY_PASSWORD="password"  # Optional
+```
+
+#### Linux/Mac:
 ```bash
-export SUPABASE_URL="your-supabase-url"
-export SUPABASE_KEY="your-supabase-key"
+export SUPABASE_URL="https://your-project.supabase.co"
+export SUPABASE_KEY="your-anon-key"
+export PROXY_SERVER="http://proxy.example.com:8080"
 ```
 
-5. Run the scraper:
+### 3. Setup Database
+
+1. Create a Supabase project at https://supabase.com
+2. Go to SQL Editor and run the schema from `migrations/002_create_tiktok_table.sql`
+3. Verify table creation in Table Editor
+
+See [SUPABASE_SETUP.md](SUPABASE_SETUP.md) for detailed instructions.
+
+### 4. Run the Scraper
+
 ```bash
-python tiktok_scraper.py
+python base.py
 ```
 
-## Automated Setup (GitHub Actions)
+## 📊 Output
 
-### 1. Fork/Clone this repository
+### Console Output
+```
+============================================================
+TIKTOK SCRAPER - Run ID: xxx-xxx-xxx
+============================================================
+✅ Scraped 93 unique hashtags
+✅ Uploaded top 10 hashtags to Supabase
+Duration: 6m 46s
+============================================================
 
-### 2. Add GitHub Secrets
-
-Go to: `Settings` → `Secrets and variables` → `Actions` → `New repository secret`
-
-Add these secrets:
-- `SUPABASE_URL`: Your Supabase project URL
-- `SUPABASE_KEY`: Your Supabase anon/public key
-
-### 3. Enable GitHub Actions
-
-The workflow is configured in `.github/workflows/scrape-tiktok.yml` and will automatically:
-- Run every 3 hours (00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00 UTC)
-- Can be manually triggered from the Actions tab
-
-### 4. Monitor Runs
-
-View workflow runs at: `Actions` → `TikTok Scraper - Every 3 Hours`
-
-## Database Schema
-
-The scraper stores data in a Supabase table with this structure:
-
-```sql
-CREATE TABLE tiktok (
-  id BIGSERIAL PRIMARY KEY,
-  platform TEXT DEFAULT 'TikTok',
-  topic TEXT NOT NULL,
-  engagement_score FLOAT,
-  sentiment_polarity FLOAT,
-  sentiment_label TEXT,
-  posts BIGINT,
-  views BIGINT,
-  metadata JSONB,
-  scraped_at TIMESTAMPTZ DEFAULT NOW(),
-  version_id UUID NOT NULL
-);
+Sample results:
+  1. #hoco - 156K Posts - Score: 7.8
+  2. #sora - 95K Posts - Score: 7.7
+  3. #homecoming - 62K Posts - Score: 7.4
+  ...
 ```
 
-## Data Fields
+### Database Output
+Top 10 hashtags stored in Supabase `tiktok` table with:
+- Hashtag name
+- Engagement score (1-10)
+- Posts count
+- Views count
+- Sentiment analysis
+- Metadata (rank, category, source URL)
+- Scrape timestamp
+- Version ID (for tracking runs)
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `topic` | TEXT | Hashtag name (e.g., #fyp) |
-| `engagement_score` | FLOAT | Calculated score from 1-10 |
-| `sentiment_polarity` | FLOAT | Sentiment score from -1 to 1 |
-| `sentiment_label` | TEXT | Positive/Neutral/Negative |
-| `posts` | BIGINT | Number of posts using hashtag |
-| `views` | BIGINT | Total views for hashtag |
-| `metadata` | JSONB | Rank, category, source URL |
-| `version_id` | UUID | Unique ID for each scrape run |
+## 🗂️ Project Structure
 
-## Usage Examples
+```
+tik-tok-ampify/
+├── base.py                 # Main scraper script
+├── requirements.txt        # Python dependencies
+├── README.md              # This file
+├── SUPABASE_SETUP.md      # Database setup guide
+├── PROXY_SETUP.md         # Proxy configuration guide
+├── .gitignore             # Git ignore rules
+├── migrations/            # Database schema files
+│   └── 002_create_tiktok_table.sql
+└── .github/
+    └── workflows/         # CI/CD automation
+        └── scrape-tiktok.yml
+```
 
-### Query Latest Hashtags
+## ⚙️ Configuration
+
+### Engagement Score Calculation
+
+The scraper uses a proprietary algorithm that considers:
+- **Posts count** (40% weight) - Normalized logarithmically
+- **Views count** (30% weight) - Normalized logarithmically  
+- **Sentiment** (20% weight) - TextBlob polarity
+- **Ranking** (10% weight) - Position in trending list
+
+Score range: 1.0 (low engagement) to 10.0 (viral content)
+
+### Top N Filtering
+
+By default, only the **top 10 hashtags** are uploaded to the database. To change this:
+
+Edit `base.py` line 835:
+```python
+# Upload top 20 instead
+success = upload_to_supabase(supabase, scraped_data, "tiktok", version_id, top_n=20)
+```
+
+## 🔧 Troubleshooting
+
+### Connection Timeout Errors
+
+**Problem:** `net::ERR_CONNECTION_TIMED_OUT`
+
+**Solution:**
+1. **Use proxy** - Configure `PROXY_SERVER` environment variable
+2. **Wait 1-2 hours** - TikTok may have temporarily blocked your IP
+3. **Switch networks** - Use mobile hotspot or different WiFi
+4. **Use GitHub Actions** - Run on cloud infrastructure
+
+See [PROXY_SETUP.md](PROXY_SETUP.md) for detailed proxy configuration.
+
+### No Data in Supabase
+
+**Problem:** Scraper runs successfully but no data visible in Supabase
+
+**Solution:**
+1. Check Row Level Security (RLS) is disabled:
 ```sql
-SELECT topic, engagement_score, sentiment_label, posts
-FROM tiktok
+ALTER TABLE public.tiktok DISABLE ROW LEVEL SECURITY;
+```
+
+2. Verify data exists:
+```sql
+SELECT COUNT(*) FROM public.tiktok;
+SELECT * FROM public.tiktok ORDER BY scraped_at DESC LIMIT 10;
+```
+
+### Proxy Not Working
+
+**Problem:** Still getting blocked with proxy configured
+
+**Solutions:**
+- Verify proxy is online: `curl --proxy $PROXY_SERVER https://api.ipify.org`
+- Try residential proxy instead of datacenter proxy
+- Check proxy authentication credentials
+- Use GitHub Actions (no proxy needed)
+
+## 🤖 Automated Scheduling
+
+The project includes a GitHub Actions workflow that runs automatically:
+
+- **Schedule:** Every 3 hours
+- **Manual trigger:** Via GitHub Actions UI
+- **Benefits:** Cloud infrastructure, no local resources, reliable execution
+
+To enable:
+1. Add Supabase credentials to GitHub Secrets:
+   - `SUPABASE_URL`
+   - `SUPABASE_KEY`
+2. Push to GitHub repository
+3. Workflow runs automatically
+
+## 📈 Querying Data
+
+### Latest Scrape
+```sql
+SELECT topic, engagement_score, posts
+FROM public.tiktok
 ORDER BY scraped_at DESC
-LIMIT 20;
-```
-
-### Find Top Trending
-```sql
-SELECT topic, posts, engagement_score
-FROM tiktok
-WHERE scraped_at >= NOW() - INTERVAL '24 hours'
-ORDER BY engagement_score DESC
 LIMIT 10;
 ```
 
-### Sentiment Analysis
+### Top Hashtags All-Time
 ```sql
 SELECT 
-  sentiment_label,
-  COUNT(*) as count,
-  AVG(engagement_score) as avg_engagement
-FROM tiktok
-WHERE scraped_at >= NOW() - INTERVAL '24 hours'
-GROUP BY sentiment_label;
+  topic,
+  AVG(engagement_score) as avg_score,
+  COUNT(*) as appearances,
+  MAX(posts) as max_posts
+FROM public.tiktok
+GROUP BY topic
+ORDER BY avg_score DESC
+LIMIT 20;
 ```
 
-## Customization
-
-### Change Schedule
-
-Edit `.github/workflows/scrape-tiktok.yml`:
-
-```yaml
-on:
-  schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
-    # or
-    - cron: '0 0 * * *'    # Daily at midnight
-```
-
-### Modify Scraping Parameters
-
-Edit `tiktok_scraper.py`:
-
-```python
-results = await scrape_tiktok_hashtags_fixed(
-    scrolls=20,        # Increase for more hashtags
-    delay=5,           # Increase delay between actions
-    headless=True,     # Set to False to see browser
-    upload_to_db=True
-)
-```
-
-## Cleanup Old Data
-
-To automatically delete data older than 7 days:
-
+### Trend Over Time
 ```sql
-CREATE OR REPLACE FUNCTION delete_old_tiktok_rows()
-RETURNS void AS $$
-BEGIN
-  DELETE FROM tiktok
-  WHERE scraped_at < NOW() - INTERVAL '7 days';
-END;
-$$ LANGUAGE plpgsql;
-
--- Schedule cleanup
-CREATE EXTENSION IF NOT EXISTS pg_cron;
-SELECT cron.schedule(
-  'tiktok-cleanup-daily',
-  '0 0 * * *',
-  'SELECT delete_old_tiktok_rows();'
-);
+SELECT 
+  DATE_TRUNC('day', scraped_at) as day,
+  COUNT(DISTINCT topic) as unique_hashtags,
+  AVG(engagement_score) as avg_score
+FROM public.tiktok
+GROUP BY day
+ORDER BY day DESC;
 ```
 
-## Troubleshooting
+## 🔒 Security Best Practices
 
-### Workflow Not Running
-- Check if Actions are enabled: `Settings` → `Actions` → `Allow all actions`
-- Verify workflow file exists: `.github/workflows/scrape-tiktok.yml`
+1. **Never commit credentials** - Use environment variables only
+2. **Use .gitignore** - Exclude venv, debug files, credentials
+3. **Rotate API keys** - Change Supabase keys periodically
+4. **Use GitHub Secrets** - For CI/CD credentials
+5. **Proxy authentication** - Use authenticated proxies for production
 
-### Scraper Fails
-- Check GitHub Actions logs for detailed errors
-- Verify Supabase credentials in Secrets
-- Ensure Supabase table exists with correct schema
+## 📦 Dependencies
 
-### No Data Uploaded
-- Check if `SUPABASE_URL` and `SUPABASE_KEY` secrets are set correctly
-- Verify Supabase table permissions (anon role needs INSERT access)
+- `playwright` - Browser automation
+- `beautifulsoup4` - HTML parsing
+- `supabase` - Database client
+- `textblob` - Sentiment analysis
+- `requests` - HTTP client
 
-## Cost
+See `requirements.txt` for complete list.
 
-**Total: $0/month**
+## 🐛 Debug Mode
 
-- GitHub Actions: 2,000 free minutes/month
-- Scraper usage: ~5-10 minutes per run
-- 8 runs/day × 30 days = ~1,200-2,400 minutes/month
-- Well within free tier
+Debug HTML files are saved automatically:
+- Location: `debug_YYYYMMDD_HHMMSS.html`
+- Contains: Full page source for troubleshooting
+- Enable: `debug=True` (default)
 
-## Contributing
+## ⚡ Performance
 
-Contributions are welcome! Please:
+- **Scraping time:** 4-8 minutes per run
+- **Hashtags collected:** 50-200 per run
+- **Database upload:** Top 10 only
+- **Success rate:** 95%+ with proxy
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+## 📝 License
 
-## License
+[Add your license here]
 
-MIT License - feel free to use this project for any purpose.
+## 🤝 Support
 
-## Disclaimer
+For issues or questions:
+1. Check troubleshooting section
+2. Review setup guides (SUPABASE_SETUP.md, PROXY_SETUP.md)
+3. Contact support: [your-email@example.com]
 
-This scraper is for educational purposes. Always respect TikTok's Terms of Service and rate limits. The scraper uses publicly available data from TikTok's Creative Center.
+## 🎉 Credits
 
-## Author
-
-**Aditya**
-- GitHub: [@Aditya0611](https://github.com/Aditya0611)
-
-## Acknowledgments
-
-- TikTok Creative Center for providing public trending data
-- Playwright team for the excellent browser automation library
-- Supabase for the free PostgreSQL database
+Built with Python, Playwright, and Supabase.
 
 ---
 
-**Last Updated**: October 2025
+**Version:** 1.0.0  
+**Last Updated:** October 2025

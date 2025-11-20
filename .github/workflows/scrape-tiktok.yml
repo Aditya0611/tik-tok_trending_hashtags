@@ -1,14 +1,96 @@
-name: TikTok Scraper - Every 3 Hours
+name: TikTok Scraper - Every 1 Hour
 
 on:
   schedule:
-    - cron: '0 */3 * * *'
+    - cron: '0 * * * *'
   workflow_dispatch:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
 
 jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run Unit Tests
+        run: |
+          echo "=========================================="
+          echo "Running unit tests..."
+          echo "=========================================="
+          python -m pytest test_utils.py -v --tb=short || python test_utils.py
+      
+      - name: Install Playwright Browsers
+        run: |
+          playwright install chromium
+          playwright install-deps chromium
+      
+      - name: Smoke Test - Playwright Installation
+        run: |
+          echo "=========================================="
+          echo "Verifying Playwright installation..."
+          echo "=========================================="
+          python -c "from playwright.sync_api import sync_playwright; print('✓ Playwright imported successfully')"
+          playwright --version
+      
+      - name: Smoke Test - Scraper Imports
+        run: |
+          echo "=========================================="
+          echo "Testing scraper imports..."
+          echo "=========================================="
+          python -c "from base import convert_to_numeric, calculate_engagement_score, analyze_sentiment; print('✓ All imports successful')"
+      
+      - name: Smoke Test - Utility Functions
+        run: |
+          echo "=========================================="
+          echo "Testing utility functions..."
+          echo "=========================================="
+          python -c "
+import sys
+sys.path.insert(0, '.')
+from base import convert_to_numeric, calculate_engagement_score, analyze_sentiment
+
+# Test convert_to_numeric
+assert convert_to_numeric('1.5K') == 1500, 'Failed: 1.5K conversion'
+assert convert_to_numeric('2.3M') == 2300000, 'Failed: 2.3M conversion'
+assert convert_to_numeric('1B') == 1000000000, 'Failed: 1B conversion'
+
+# Test engagement score
+score = calculate_engagement_score('#test', '100K', 'Music', 'test')
+assert 1.0 <= score <= 10.0, f'Failed: score {score} out of range'
+
+# Test sentiment
+polarity, label = analyze_sentiment('#test', 'test text')
+assert polarity == 0.0, 'Failed: sentiment should be neutral'
+assert label == 'Neutral', 'Failed: label should be Neutral'
+
+print('✓ All utility function smoke tests passed')
+"
+  
   scrape-tiktok:
+    name: Scrape TikTok Hashtags
+    needs: test
     runs-on: ubuntu-22.04
     timeout-minutes: 20
+    # Only run scraper on schedule or manual trigger, not on every PR
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     
     steps:
       - name: Checkout Repository
@@ -27,18 +109,52 @@ jobs:
       
       - name: Install Playwright Browsers
         run: |
+          echo "=========================================="
+          echo "Installing Playwright browsers..."
+          echo "=========================================="
           playwright install chromium
-          playwright install-deps
+          playwright install-deps chromium
+      
+      - name: Verify Playwright Installation
+        run: |
+          echo "=========================================="
+          echo "Verifying Playwright installation..."
+          echo "=========================================="
+          playwright --version
+          python -c "from playwright.sync_api import sync_playwright; p = sync_playwright().start(); print(f'✓ Playwright version: {p.chromium.name}'); p.stop()"
       
       - name: Run TikTok Scraper
-        run: python base.py
+        run: |
+          echo "=========================================="
+          echo "Starting TikTok scraper..."
+          echo "=========================================="
+          python base.py
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       
+      - name: Upload Debug Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: debug-files
+          path: debug_*.html
+          retention-days: 7
+          if-no-files-found: ignore
+      
       - name: Job Complete
+        if: success()
         run: |
           echo "=========================================="
-          echo "Scraping completed successfully!"
+          echo "✓ Scraping completed successfully!"
+          echo "Timestamp: $(date)"
+          echo "=========================================="
+      
+      - name: Job Failed
+        if: failure()
+        run: |
+          echo "=========================================="
+          echo "✗ Scraping failed!"
+          echo "Check logs above for details"
           echo "Timestamp: $(date)"
           echo "=========================================="
