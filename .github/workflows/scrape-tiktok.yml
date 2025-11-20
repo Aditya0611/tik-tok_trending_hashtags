@@ -1,5 +1,6 @@
 name: TikTok Scraper - Every 1 Hour
 
+# Workflow triggers: scheduled (hourly), manual, and on push/PR to main/master
 on:
   schedule:
     - cron: '0 * * * *'
