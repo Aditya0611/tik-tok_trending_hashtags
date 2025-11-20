@@ -36,10 +36,12 @@ jobs:
           echo "Running unit tests..."
           echo "=========================================="
           if [ -f test_utils.py ]; then
+            echo "Found test_utils.py, running tests..."
             python -m pytest test_utils.py -v --tb=short || python test_utils.py
           else
             echo "Warning: test_utils.py not found, skipping unit tests"
             echo "This is expected if the file hasn't been committed yet"
+            echo "Continuing with smoke tests instead..."
           fi
       
       - name: Install Playwright Browsers
