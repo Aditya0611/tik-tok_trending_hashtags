@@ -150,6 +150,7 @@ jobs:
           path: debug_*.html
           retention-days: 7
           if-no-files-found: ignore
+          # Updated to v4 to fix deprecation error
       
       - name: Job Complete
         if: success()
